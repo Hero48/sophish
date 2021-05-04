@@ -1,0 +1,89 @@
+{% extends 'layout.html' %} {% block body %}
+
+<section class="form7 cid-st3Tk5us8w" id="form7-2">
+  <div class="container">
+    <div class="mbr-section-head">
+      <h3 class="mbr-section-title mbr-fonts-style align-center mb-0 display-5">
+        <strong>New Candidate</strong>
+      </h3>
+    </div>
+    <div class="row justify-content-center mt-4">
+      <div class="col-lg-8 mx-auto mbr-form">
+        <form
+          action="{{url_for('addcandidate')}}"
+          method="POST"
+          enctype="multipart/form-data"
+          class="mbr-form form-with-styler mx-auto"
+        >
+          {{ form.hidden_tag() }}
+          <p class="mbr-text mbr-fonts-style align-center mb-4 display-7">
+            Add New Candidate
+          </p>
+
+          <div class="dragArea row">
+            <div
+              class="col-lg-12 col-md-12 col-sm-12 form-group"
+              data-for="candidate_name"
+            >
+              {{form.candidate_name.label(class='form-control-label')}} {% if
+              form.candidate_name.errors %} {{ form.candidate_name(class='form-control
+              form-control-lg is-invalid') }}
+              <div class="invalid-feedback">
+                {% for error in form.candidate_name.errors %}
+                <span>{{ error }}</span>
+                {% endfor %}
+              </div>
+              {% else %} {{ form.candidate_name(class='form-control',
+              id="name-form6-0" ) }} {% endif %}
+            </div>
+            <div
+              class="col-lg-12 col-md-12 col-sm-12 form-group"
+              data-for="moto"
+            >
+              {{form.moto.label(class='form-control-label')}} {% if
+              form.moto.errors %} {{ form.moto(class='form-control
+              form-control-lg is-invalid') }}
+              <div class="invalid-feedback">
+                {% for error in form.moto.errors %}
+                <span>{{ error }}</span>
+                {% endfor %}
+              </div>
+              {% else %} {{ form.moto(class='form-control border-3',
+              id="name-form6-0" ) }} {% endif %}
+            </div>
+            <div
+            class="col-lg-12 col-md-12 col-sm-12 form-group"
+            data-for="sector"
+          >
+            {{form.sector.label(class='form-control-label')}} {% if
+            form.sector.errors %} {{ form.sector(class='form-control
+            form-control-lg is-invalid') }}
+            <div class="invalid-feedback">
+              {% for error in form.sector.errors %}
+              <span>{{ error }}</span>
+              {% endfor %}
+            </div>
+            {% else %} {{ form.sector(class='form-control border-3',
+            id="name-form6-0" ) }} {% endif %}
+          </div>
+          <div class="col-lg-12 col-md-12 col-sm-12 form-group">
+            {{form.image.label()}}
+            {{form.image( class='form-control-file btn-outline-success')}}
+            {% if form.image.errors %}
+            {% for error in form.image.errors %}
+            <span class="text-danger">{{ error }}</span> </br>
+            {% endfor %}
+
+            {% endif %}
+        </div>
+
+            <div class="col-auto mbr-section-btn align-center">
+              {{form.submit(class="btn display-4", style="background-color: #01cc65; color: white;")}}
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
