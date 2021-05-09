@@ -1,232 +1,265 @@
-{% extends 'base.html' %} {% block body %}
+{% extends 'base.html' %}
+{% block head %}
+{% endblock %}
+
+{% block body %}
+{% set bg = bgs|random %}
+
 <!-- Header -->
-<div class="header bg-gradient-green pb-8 pt-5 pt-md-8">
+<div class="header bg-gradient-{{bg}} pb-8 pt-5 pt-md-8">
   <div class="container-fluid">
     <div class="header-body">
       <!-- Card stats -->
       <div class="row">
         <div class="col-xl-3 col-lg-6">
           <div class="card card-stats mb-4 mb-xl-0">
-            <div class="card-body">
-              <div class="row">
-                <div class="col">
-                  <h5 class="card-title text-uppercase text-muted mb-0">
-                    Presidential
-                  </h5>
-                  {% set pres =
-                  ((total_president_votes/total_vote_count)*100)|round(1) %}
-                  <span class="h2 font-weight-bold mb-0"
-                    >{{total_president_votes}}</span
-                  >
-                </div>
-                <div class="col-auto">
-                  <div
-                    class="icon icon-shape bg-danger text-white rounded-circle shadow"
-                  >
-                    <i class="fas fa-users"></i>
+            <a href="#president">
+              <div class="card-body">
+                <div class="row">
+                  <div class="col">
+                    <h5 class="card-title text-uppercase text-muted mb-0">
+                      Presidential
+                    </h5>
+                    {% if total != 0 %}
+                    {% set pres =
+                    ((total_president_votes/total)*100)|round(1) %}
+                    <span class="h2 font-weight-bold mb-0">{{total_president_votes}}</span>
+                    {% else %}
+                    {% set pres = 0 %}
+                    <span class="h2 font-weight-bold mb-0">0</span>
+                    {%endif%}
+                  </div>
+                  <div class="col-auto">
+                    <div
+                      class="icon icon-shape bg-danger text-white rounded-circle
+                      shadow">
+                      <i class="fas fa-users"></i>
+                    </div>
                   </div>
                 </div>
+                <p class="mt-3 mb-0 text-muted text-sm">
+                  <span class="text-success mr-2"><i class="fa fa-arrow-up"></i>
+                    {{pres}}%</span>
+                  <span class="text-nowrap">Voted</span>
+                </p>
               </div>
-              <p class="mt-3 mb-0 text-muted text-sm">
-                <span class="text-success mr-2"
-                  ><i class="fa fa-arrow-up"></i> {{pres}}</span
-                >
-                <span class="text-nowrap">Voted</span>
-              </p>
-            </div>
+            </a>
           </div>
         </div>
         <div class="col-xl-3 col-lg-6">
           <div class="card card-stats mb-4 mb-xl-0">
-            <div class="card-body">
-              <div class="row">
-                <div class="col">
-                  <h5 class="card-title text-uppercase text-muted mb-0">
-                    P. R. O
-                  </h5>
-                  {% set pro = ((total_pro_votes/total_vote_count)*100)|round(1)
-                  %}
-                  <span class="h2 font-weight-bold mb-0"
-                    >{{total_pro_votes}}</span
-                  >
-                </div>
-                <div class="col-auto">
-                  <div
-                    class="icon icon-shape bg-green text-white rounded-circle shadow"
-                  >
-                    <i class="fas fa-users"></i>
+            <a href="#pro">
+              <div class="card-body">
+                <div class="row">
+                  <div class="col">
+
+                    <h5 class="card-title text-uppercase text-muted mb-0">
+                      P. R. O
+                    </h5>
+                    {% if total != 0 %}
+                    {% set pro = ((total_pro_votes/total)*100)|round(1)
+                    %}
+                    <span class="h2 font-weight-bold mb-0">{{total_pro_votes}}</span>
+                    {%else%}
+                    {% set pro = 0 %}
+                    <span class="h2 font-weight-bold mb-0">0</span>
+                    {% endif %}
+                  </div>
+                  <div class="col-auto">
+
+                    <div
+                      class="icon icon-shape bg-green text-white rounded-circle
+                      shadow">
+                      <i class="fas fa-users"></i>
+                    </div>
                   </div>
                 </div>
+                <p class="mt-3 mb-0 text-muted text-sm">
+                  <span class="text-success mr-2"><i class="fa fa-arrow-up"></i>
+                    {{pro}}%</span>
+                  <span class="text-nowrap">Voted</span>
+                </p>
               </div>
-              <p class="mt-3 mb-0 text-muted text-sm">
-                <span class="text-success mr-2"
-                  ><i class="fa fa-arrow-up"></i> {{pro}}%</span
-                >
-                <span class="text-nowrap">Voted</span>
-              </p>
-            </div>
+            </a>
           </div>
         </div>
         <div class="col-xl-3 col-lg-6">
           <div class="card card-stats mb-4 mb-xl-0">
-            <div class="card-body">
-              <div class="row">
-                <div class="col">
-                  <h5 class="card-title text-uppercase text-muted mb-0">
-                    Environment
-                  </h5>
-                  {% set environ =
-                  ((total_environment_votes/total_vote_count)*100)|round(1) %}
-                  <span class="h2 font-weight-bold mb-0"
-                    >{{total_environment_votes}}</span
-                  >
-                </div>
-                <div class="col-auto">
-                  <div
-                    class="icon icon-shape bg-blue text-white rounded-circle shadow"
-                  >
-                    <i class="fas fa-users"></i>
+            <a href="#environment">
+              <div class="card-body">
+                <div class="row">
+                  <div class="col">
+                    <h5 class="card-title text-uppercase text-muted mb-0">
+                      Environment
+                    </h5>
+                    {% if total != 0 %}
+                    {% set environ =
+                    ((total_environment_votes/total)*100)|round(1) %}
+                    <span class="h2 font-weight-bold mb-0">{{total_environment_votes}}</span>
+                    {%else%}
+                    {% set environ = 0 %}
+                    <span class="h2 font-weight-bold mb-0">0</span>
+                    {% endif %}
+                  </div>
+                  <div class="col-auto">
+                    <div
+                      class="icon icon-shape bg-blue text-white rounded-circle
+                      shadow">
+                      <i class="fas fa-users"></i>
+                    </div>
                   </div>
                 </div>
+                <p class="mt-3 mb-0 text-muted text-sm">
+                  <span class="text-success mr-2"><i class="fa fa-arrow-up"></i>
+                    {{environ}}%</span>
+                  <span class="text-nowrap">Voted</span>
+                </p>
               </div>
-              <p class="mt-3 mb-0 text-muted text-sm">
-                <span class="text-success mr-2"
-                  ><i class="fa fa-arrow-up"></i> {{environ}}%</span
-                >
-                <span class="text-nowrap">Voted</span>
-              </p>
             </div>
+          </div>
+          <div class="col-xl-3 col-lg-6">
+            <div class="card card-stats mb-4 mb-xl-0">
+              <div class="card-body">
+                <div class="row">
+                  <div class="col">
+                    <h5 class="card-title text-uppercase text-muted mb-0">
+                      Library
+                    </h5>
+                    {% if total != 0 %}
+                    {% set library_percent =
+                    ((total_library_votes/total)*100)|round(1) %}
+                    <span class="h2 font-weight-bold mb-0">{{total_library_votes}}</span>
+                    {%else%}
+                    {% set library_percent = 0 %}
+                    <span class="h2 font-weight-bold mb-0">0</span>
+                    {% endif %}
+                  </div>
+                  <div class="col-auto">
+                    <div
+                      class="icon icon-shape bg-dark text-white rounded-circle
+                      shadow">
+                      <i class="fas fa-users"></i>
+                    </div>
+                  </div>
+                </div>
+                <p class="mt-3 mb-0 text-muted text-sm">
+                  <span class="text-success mr-2"><i class="fa fa-arrow-up"></i>
+                    {{library_percent}}%</span>
+                  <span class="text-nowrap">Voted</span>
+                </p>
+              </div>
+            </a>
           </div>
         </div>
         <div class="col-xl-3 col-lg-6">
           <div class="card card-stats mb-4 mb-xl-0">
-            <div class="card-body">
-              <div class="row">
-                <div class="col">
-                  <h5 class="card-title text-uppercase text-muted mb-0">
-                    Library
-                  </h5>
-                  {% set library_percent =
-                  ((total_library_votes/total_vote_count)*100)|round(1) %}
-                  <span class="h2 font-weight-bold mb-0"
-                    >{{total_library_votes}}</span
-                  >
-                </div>
-                <div class="col-auto">
-                  <div
-                    class="icon icon-shape bg-dark text-white rounded-circle shadow"
-                  >
-                    <i class="fas fa-users"></i>
+            <a href="#secretary">
+              <div class="card-body">
+                <div class="row">
+                  <div class="col">
+                    <h5 class="card-title text-uppercase text-muted mb-0">
+                      Secretary
+                    </h5>
+                    {% if total != 0 %}
+                    {% set secretary_percent =
+                    ((total_secretaries_votes/total)*100)|round(1) %}
+                    <span class="h2 font-weight-bold mb-0">{{total_secretaries_votes}}</span>
+                    {%else%}
+                    {% set secretary_percent = 0 %}
+                    <span class="h2 font-weight-bold mb-0">0</span>
+                    {% endif %}
+                  </div>
+                  <div class="col-auto">
+                    <div
+                      class="icon icon-shape bg-warning text-white
+                      rounded-circle shadow">
+                      <i class="fas fa-users"></i>
+                    </div>
                   </div>
                 </div>
+                <p class="mt-3 mb-0 text-muted text-sm">
+                  <span class="text-success mr-2"><i class="fa fa-arrow-up"></i>{{secretary_percent}}%</span>
+                  <span class="text-nowrap">Voted</span>
+                </p>
               </div>
-              <p class="mt-3 mb-0 text-muted text-sm">
-                <span class="text-success mr-2"
-                  ><i class="fa fa-arrow-up"></i> {{library_percent}}%</span
-                >
-                <span class="text-nowrap">Voted</span>
-              </p>
-            </div>
+            </a>
           </div>
         </div>
         <div class="col-xl-3 col-lg-6">
           <div class="card card-stats mb-4 mb-xl-0">
-            <div class="card-body">
-              <div class="row">
-                <div class="col">
-                  <h5 class="card-title text-uppercase text-muted mb-0">
-                    Secretary
-                  </h5>
-                  {% set secretary_percent =
-                  ((total_secretaries_votes/total_vote_count)*100)|round(1) %}
-                  <span class="h2 font-weight-bold mb-0"
-                    >{{total_secretaries_votes}}</span
-                  >
-                </div>
-                <div class="col-auto">
-                  <div
-                    class="icon icon-shape bg-warning text-white rounded-circle shadow"
-                  >
-                    <i class="fas fa-users"></i>
+            <a href="#entertainment">
+              <div class="card-body">
+                <div class="row">
+                  <div class="col">
+                    <h5 class="card-title text-uppercase text-muted mb-0">
+                      Entertainment
+                    </h5>
+                    {% if total != 0 %}
+                    {% set entertainment_percent =
+                    ((total_entertainment_votes/total)*100)|round(1) %}
+                    <span class="h2 font-weight-bold mb-0">{{total_entertainment_votes}}</span>
+                    {%else%}
+                    {% set entertainment_percent = 0 %}
+                    <span class="h2 font-weight-bold mb-0">0</span>
+                    {% endif %}
+                  </div>
+                  <div class="col-auto">
+                    <div
+                      class="icon icon-shape bg-success text-white
+                      rounded-circle shadow">
+                      <i class="fas fa-users"></i>
+                    </div>
                   </div>
                 </div>
+                <p class="mt-3 mb-0 text-muted text-sm">
+                  <span class="text-success mr-2"><i class="fa fa-arrow-up"></i>
+                    {{entertainment_percent}}%</span>
+                  <span class="text-nowrap">Voted</span>
+                </p>
               </div>
-              <p class="mt-3 mb-0 text-muted text-sm">
-                <span class="text-success mr-2"
-                  ><i class="fa fa-arrow-up"></i>{{secretary_percent}}%</span
-                >
-                <span class="text-nowrap">Voted</span>
-              </p>
-            </div>
+            </a>
           </div>
         </div>
         <div class="col-xl-3 col-lg-6">
           <div class="card card-stats mb-4 mb-xl-0">
-            <div class="card-body">
-              <div class="row">
-                <div class="col">
-                  <h5 class="card-title text-uppercase text-muted mb-0">
-                    Entertainment
-                  </h5>
-                  {% set entertainment_percent =
-                  ((total_entertainment_votes/total_vote_count)*100)|round(1) %}
-                  <span class="h2 font-weight-bold mb-0"
-                    >{{total_entertainment_votes}}</span
-                  >
-                </div>
-                <div class="col-auto">
-                  <div
-                    class="icon icon-shape bg-success text-white rounded-circle shadow"
-                  >
-                    <i class="fas fa-users"></i>
+            <a href="#dinning">
+              <div class="card-body">
+                <div class="row">
+                  <div class="col">
+                    <h5 class="card-title text-uppercase text-muted mb-0">
+                      Dinning Hall
+                    </h5>
+                    {% if total != 0 %}
+                    {% set dinning =
+                    ((total_dinning_hall_votes/total)*100)|round(1) %}
+                    <span class="h2 font-weight-bold mb-0">{{total_dinning_hall_votes}}</span>
+                    {%else%}
+                    {% set dinning = 0 %}
+                    <span class="h2 font-weight-bold mb-0">0</span>
+                    {% endif %}
+                  </div>
+                  <div class="col-auto">
+                    <div
+                      class="icon icon-shape bg-info text-white rounded-circle
+                      shadow">
+                      <i class="fas fa-users"></i>
+                    </div>
                   </div>
                 </div>
+                <p class="mt-3 mb-0 text-muted text-sm">
+                  <span class="text-success mr-2"><i class="fa fa-arrow-up"></i>
+                    {{dinning}}%</span>
+                  <span class="text-nowrap">Voted</span>
+                </p>
               </div>
-              <p class="mt-3 mb-0 text-muted text-sm">
-                <span class="text-success mr-2"
-                  ><i class="fa fa-arrow-up"></i> {{entertainment_percent}}%</span
-                >
-                <span class="text-nowrap">Voted</span>
-              </p>
-            </div>
-          </div>
-        </div>
-        <div class="col-xl-3 col-lg-6">
-          <div class="card card-stats mb-4 mb-xl-0">
-            <div class="card-body">
-              <div class="row">
-                <div class="col">
-                  <h5 class="card-title text-uppercase text-muted mb-0">
-                    Dinning Hall
-                  </h5>
-                  {% set dinning =
-                  ((total_dinning_hall_votes/total_vote_count)*100)|round(1) %}
-                  <span class="h2 font-weight-bold mb-0"
-                    >{{total_dinning_hall_votes}}</span
-                  >
-                </div>
-                <div class="col-auto">
-                  <div
-                    class="icon icon-shape bg-info text-white rounded-circle shadow"
-                  >
-                    <i class="fas fa-users"></i>
-                  </div>
-                </div>
-              </div>
-              <p class="mt-3 mb-0 text-muted text-sm">
-                <span class="text-success mr-2"
-                  ><i class="fa fa-arrow-up"></i> {{dinning}}%</span
-                >
-                <span class="text-nowrap">Voted</span>
-              </p>
-            </div>
+            </a>
           </div>
         </div>
       </div>
     </div>
   </div>
 </div>
-<div class="container-fluid mt--7">
+<div class="container-fluid mt--7" id="president">
   <div class="col-xl-4">
     <div class="card shadow">
       <div class="card-header border-0">
@@ -236,7 +269,15 @@
           </div>
           <div class="col text-right">
             <!-- Change if current user is voted -->
-            <a href="{{url_for('president')}}" class="btn btn-sm btn-success">Vote</a>
+            {% if current_user.is_authenticated and
+            current_user.voted_for_president == false %}
+            <a href="{{url_for('president')}}" class="btn btn-sm btn-primary">Vote</a>
+            {% elif current_user.is_authenticated and
+            current_user.voted_for_president == true %}
+            <p class="btn btn-sm btn-success"> Voted</p>
+            {% elif current_user.is_authenticated == false%}
+            <a href="{{url_for('president')}}" class="btn btn-sm btn-primary">Vote</a>
+            {% endif %}
           </div>
         </div>
       </div>
@@ -270,8 +311,7 @@
                         aria-valuenow="{{percent}}"
                         aria-valuemin="0"
                         aria-valuemax="100"
-                        style="width: {{precent}}%"
-                      ></div>
+                        style="width: {{precent}}%"></div>
                     </div>
                   </div>
                   {% else %}
@@ -285,8 +325,7 @@
                         aria-valuenow="0"
                         aria-valuemin="0"
                         aria-valuemax="100"
-                        style="width: 0%"
-                      ></div>
+                        style="width: 0%"></div>
                     </div>
                   </div>
                   {% endif %}
@@ -304,7 +343,7 @@
 
 
 
-<div class="container-fluid mt-4">
+<div class="container-fluid mt-4"id="pro">
   <div class="col-xl-4">
     <div class="card shadow">
       <div class="card-header border-0">
@@ -314,7 +353,15 @@
           </div>
           <div class="col text-right">
             <!-- Change if current user is voted -->
-            <a href="{{url_for('pro')}}" class="btn btn-sm btn-success">Vote</a>
+            {% if current_user.is_authenticated and current_user.voted_for_pro
+            == false %}
+            <a href="{{url_for('pro')}}" class="btn btn-sm btn-primary">Vote</a>
+            {% elif current_user.is_authenticated and current_user.voted_for_pro
+            == true %}
+            <p class="btn btn-sm btn-success"> Voted</p>
+            {% elif current_user.is_authenticated == false%}
+            <a href="{{url_for('pro')}}" class="btn btn-sm btn-primary">Vote</a>
+            {% endif %}
           </div>
         </div>
       </div>
@@ -348,8 +395,7 @@
                         aria-valuenow="{{percent}}"
                         aria-valuemin="0"
                         aria-valuemax="100"
-                        style="width: {{precent}}%"
-                      ></div>
+                        style="width: {{precent}}%"></div>
                     </div>
                   </div>
                   {% else %}
@@ -363,8 +409,7 @@
                         aria-valuenow="0"
                         aria-valuemin="0"
                         aria-valuemax="100"
-                        style="width: 0%"
-                      ></div>
+                        style="width: 0%"></div>
                     </div>
                   </div>
                   {% endif %}
@@ -379,7 +424,7 @@
   </div>
 </div>
 
-<div class="container-fluid mt-4">
+<div class="container-fluid mt-4"id="environment">
   <div class="col-xl-4">
     <div class="card shadow">
       <div class="card-header border-0">
@@ -388,9 +433,15 @@
             <h3 class="mb-0">Environmental Candidates</h3>
           </div>
           <div class="col text-right">
-            <!-- Change if current user is voted -->
-            <a href="{{url_for('environment')}}" class="btn btn-sm btn-success">Vote</a>
-          </div>
+            {% if current_user.is_authenticated and
+            current_user.voted_for_environment == false %}
+            <a href="{{url_for('environment')}}" class="btn btn-sm btn-primary">Vote</a>
+            {% elif current_user.is_authenticated and
+            current_user.voted_for_environment == true %}
+            <p class="btn btn-sm btn-success"> Voted</p>
+            {% elif current_user.is_authenticated == false%}
+            <a href="{{url_for('environment')}}" class="btn btn-sm btn-primary">Vote</a>
+            {% endif %} </div>
         </div>
       </div>
       <div class="table-responsive">
@@ -423,8 +474,7 @@
                         aria-valuenow="{{percent}}"
                         aria-valuemin="0"
                         aria-valuemax="100"
-                        style="width: {{precent}}%"
-                      ></div>
+                        style="width: {{precent}}%"></div>
                     </div>
                   </div>
                   {% else %}
@@ -438,8 +488,7 @@
                         aria-valuenow="0"
                         aria-valuemin="0"
                         aria-valuemax="100"
-                        style="width: 0%"
-                      ></div>
+                        style="width: 0%"></div>
                     </div>
                   </div>
                   {% endif %}
@@ -455,7 +504,7 @@
 </div>
 
 
-<div class="container-fluid mt-4">
+<div class="container-fluid mt-4"id="library">
   <div class="col-xl-4">
     <div class="card shadow">
       <div class="card-header border-0">
@@ -464,8 +513,15 @@
             <h3 class="mb-0">Library Candidates</h3>
           </div>
           <div class="col text-right">
-            <!-- Change if current user is voted -->
-            <a href="{{url_for('library')}}" class="btn btn-sm btn-success">Vote</a>
+            {% if current_user.is_authenticated and
+            current_user.voted_for_library == false %}
+            <a href="{{url_for('library')}}" class="btn btn-sm btn-primary">Vote</a>
+            {% elif current_user.is_authenticated and
+            current_user.voted_for_library == true %}
+            <p class="btn btn-sm btn-success"> Voted</p>
+            {% elif current_user.is_authenticated == false%}
+            <a href="{{url_for('library')}}" class="btn btn-sm btn-primary">Vote</a>
+            {% endif %}
           </div>
         </div>
       </div>
@@ -499,8 +555,7 @@
                         aria-valuenow="{{percent}}"
                         aria-valuemin="0"
                         aria-valuemax="100"
-                        style="width: {{precent}}%"
-                      ></div>
+                        style="width: {{precent}}%"></div>
                     </div>
                   </div>
                   {% else %}
@@ -514,8 +569,7 @@
                         aria-valuenow="0"
                         aria-valuemin="0"
                         aria-valuemax="100"
-                        style="width: 0%"
-                      ></div>
+                        style="width: 0%"></div>
                     </div>
                   </div>
                   {% endif %}
@@ -531,7 +585,7 @@
 </div>
 
 
-<div class="container-fluid mt-4">
+<div class="container-fluid mt-4"id="secretary">
   <div class="col-xl-4">
     <div class="card shadow">
       <div class="card-header border-0">
@@ -540,8 +594,15 @@
             <h3 class="mb-0">Secretary Candidates</h3>
           </div>
           <div class="col text-right">
-            <!-- Change if current user is voted -->
-            <a href="{{url_for('secretary')}}" class="btn btn-sm btn-success">Vote</a>
+            {% if current_user.is_authenticated and
+            current_user.voted_for_secretary == false %}
+            <a href="{{url_for('secretary')}}" class="btn btn-sm btn-primary">Vote</a>
+            {% elif current_user.is_authenticated and
+            current_user.voted_for_secretary == true %}
+            <p class="btn btn-sm btn-success"> Voted</p>
+            {% elif current_user.is_authenticated == false%}
+            <a href="{{url_for('secretary')}}" class="btn btn-sm btn-primary">Vote</a>
+            {% endif %}
           </div>
         </div>
       </div>
@@ -575,25 +636,23 @@
                         aria-valuenow="{{percent}}"
                         aria-valuemin="0"
                         aria-valuemax="100"
-                        style="width: {{precent}}%"
-                      ></div>
+                        style="width: {{precent}}%"></div>
                     </div>
                     {% else %}
-                  <span class="mr-2">0%</span>
-                  <div>
-                    <div class="progress">
-                      {% set color = colors|random %}
-                      <div
-                        class="progress-bar {{color}}"
-                        role="progressbar"
-                        aria-valuenow="0"
-                        aria-valuemin="0"
-                        aria-valuemax="100"
-                        style="width: 0%"
-                      ></div>
+                    <span class="mr-2">0%</span>
+                    <div>
+                      <div class="progress">
+                        {% set color = colors|random %}
+                        <div
+                          class="progress-bar {{color}}"
+                          role="progressbar"
+                          aria-valuenow="0"
+                          aria-valuemin="0"
+                          aria-valuemax="100"
+                          style="width: 0%"></div>
+                      </div>
                     </div>
-                  </div>
-                  {% endif %}
+                    {% endif %}
                   </div>
                 </div>
               </td>
@@ -606,7 +665,7 @@
   </div>
 </div>
 
-<div class="container-fluid mt-4">
+<div class="container-fluid mt-4"id="entertainment">
   <div class="col-xl-4">
     <div class="card shadow">
       <div class="card-header border-0">
@@ -615,8 +674,17 @@
             <h3 class="mb-0">Entertainment Candidates</h3>
           </div>
           <div class="col text-right">
-            <!-- Change if current user is voted -->
-            <a href="{{url_for('entertainment')}}" class="btn btn-sm btn-success">Vote</a>
+            {% if current_user.is_authenticated and
+            current_user.voted_for_entertainment == false %}
+            <a href="{{url_for('entertainment')}}" class="btn btn-sm
+              btn-primary">Vote</a>
+            {% elif current_user.is_authenticated and
+            current_user.voted_for_entertainment == true %}
+            <p class="btn btn-sm btn-success"> Voted</p>
+            {% elif current_user.is_authenticated == false%}
+            <a href="{{url_for('entertainment')}}" class="btn btn-sm
+              btn-primary">Vote</a>
+            {% endif %}
           </div>
         </div>
       </div>
@@ -650,8 +718,7 @@
                         aria-valuenow="{{percent}}"
                         aria-valuemin="0"
                         aria-valuemax="100"
-                        style="width: {{precent}}%"
-                      ></div>
+                        style="width: {{precent}}%"></div>
                     </div>
                   </div>
                   {% else %}
@@ -665,8 +732,7 @@
                         aria-valuenow="0"
                         aria-valuemin="0"
                         aria-valuemax="100"
-                        style="width: 0%"
-                      ></div>
+                        style="width: 0%"></div>
                     </div>
                   </div>
                   {% endif %}
@@ -682,7 +748,7 @@
 </div>
 
 
-<div class="container-fluid mt-4">
+<div class="container-fluid mt-4"id="dinning">
   <div class="col-xl-4">
     <div class="card shadow">
       <div class="card-header border-0">
@@ -691,8 +757,17 @@
             <h3 class="mb-0">Dinning Hall Candidates</h3>
           </div>
           <div class="col text-right">
-            <!-- Change if current user is voted -->
-            <a href="{{url_for('dinning_hall')}}" class="btn btn-sm btn-success">Vote</a>
+            {% if current_user.is_authenticated and
+            current_user.voted_for_dinning_hall == false %}
+            <a href="{{url_for('dinning_hall')}}" class="btn btn-sm
+              btn-primary">Vote</a>
+            {% elif current_user.is_authenticated and
+            current_user.voted_for_dinning_hall == true %}
+            <p class="btn btn-sm btn-success" id="test"> Voted</p>
+            {% elif current_user.is_authenticated == false%}
+            <a href="{{url_for('dinning_hall')}}" class="btn btn-sm
+              btn-primary">Vote</a>
+            {% endif %}
           </div>
         </div>
       </div>
@@ -726,8 +801,7 @@
                         aria-valuenow="{{percent}}"
                         aria-valuemin="0"
                         aria-valuemax="100"
-                        style="width: {{precent}}%"
-                      ></div>
+                        style="width: {{precent}}%"></div>
                     </div>
                   </div>
                   {% else %}
@@ -741,8 +815,7 @@
                         aria-valuenow="0"
                         aria-valuemin="0"
                         aria-valuemax="100"
-                        style="width: 0%"
-                      ></div>
+                        style="width: 0%"></div>
                     </div>
                   </div>
                   {% endif %}
@@ -756,4 +829,11 @@
     </div>
   </div>
 </div>
+<script type="text/javascript" charset="utf-8">
+  var socket = io('http://' + document.domain + ':' + location.port);
+  socket.on('connect', function() {
+      socket.emit('my event', {data: 'I\'m connected!'});
+  });
+</script>
+
 {% endblock %}

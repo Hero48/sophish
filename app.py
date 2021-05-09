@@ -2,6 +2,7 @@ import os
 import secrets
 from flask import Flask, render_template, request, redirect, Response, send_file, flash, url_for
 from flask_sqlalchemy import SQLAlchemy 
+from flask_socketio import SocketIO, emit 
 from datetime import datetime
 from werkzeug.utils import secure_filename
 from flask_bcrypt import Bcrypt
@@ -13,6 +14,7 @@ from wtforms import StringField, PasswordField, SubmitField, BooleanField, Selec
 from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError
 from flask_script import Manager
 from flask_migrate import Migrate, MigrateCommand
+from flask_socketio import SocketIO, emit 
 
 
 
@@ -28,6 +30,7 @@ login_manager.login_view = 'login'
 login_manager.login_message_category = 'info'
 migrate = Migrate(app, db)
 manager = Manager(app)
+socketio = SocketIO(app)
 
 manager.add_command('db', MigrateCommand)
 
@@ -42,10 +45,11 @@ class Halls(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     hall = db.Column(db.String(20))
 
-
 class Levels(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    level = db.Column(db.String(20))
+    level = db.Column(db.String(10))
+
+
 
 
 class Categories(db.Model):
@@ -65,7 +69,11 @@ class StudentProfile(db.Model, UserMixin):
     voted_for_president = db.Column(db.Boolean, nullable=False, default=False)
     voted_for_pro = db.Column(db.Boolean, nullable=False, default=False)
     voted_for_dinning_hall = db.Column(db.Boolean, nullable=False, default=False)
+    voted_for_hall = db.Column(db.Boolean, nullable=False, default=False)
     voted_for_house = db.Column(db.Boolean, nullable=False, default=False)
+    voted_for_entertainment = db.Column(db.Boolean, nullable=False, default=False)
+    voted_for_library = db.Column(db.Boolean, nullable=False, default=False)
+    voted_for_secretary = db.Column(db.Boolean, nullable=False, default=False)
     voted_for_environment = db.Column(db.Boolean, nullable=False, default=False)
     
 class Candidates(db.Model):
@@ -133,6 +141,11 @@ class StudentRegistration(FlaskForm):
         if not house:
             raise ValidationError('No Hall Selected.')
 
+    def validate_level(self, level): 
+        lvl = Levels.query.filter_by(level=level.data).first()
+        if not lvl:
+            raise ValidationError('No Level Selected.')
+
 
 
 
@@ -181,8 +194,17 @@ def all_votes():
 
 bars_colors = ['bg-gradient-warning', 'bg-gradient-info', 'bg-gradient-primary', 
                 'bg-gradient-success', 'bg-gradient-danger']
+bg_colors = ['cyan', 'blue', 'primary', 'success', 'red', 'purple']
 
+####################################################################################################
+def t_students():
+    students = StudentProfile.query.all()
+    total = 0
+    for student in students:
+        total += 1
+    return total
 
+total_students = t_students()
 
 
 
@@ -203,10 +225,11 @@ def login():
             next_page = request.args.get('next')
             return redirect(next_page) if next_page else redirect(url_for('index'))
         else:
-            flash('Login Unsuccessful Please Check Index No And Password', 'danger')
-    return render_template('login.html', tittle='Login', form=form)
+            flash('Login unsuccessful please check index No. or Password', 'danger')
+    return render_template('login.html', tittle='Login', form=form, bgs=bg_colors)
 
 @app.route('/logout')
+@login_required
 def logout():
     logout_user()
     return redirect(url_for('index'))
@@ -227,9 +250,9 @@ def register():
         db.session.add(student_profile)
 
         db.session.commit()
-        flash('Your Account Has Been Created Successfully')
+        flash('Your Account Has Been Created Successfully', 'success')
         return redirect(url_for('login'))
-    return render_template('register.html', form=form)
+    return render_template('register.html', form=form, bgs=bg_colors)
 
 #####################################################################################################
 
@@ -239,6 +262,7 @@ def register():
 
 
 @app.route('/new-candidate',  methods=['GET', 'POST'])
+@login_required
 def addcandidate():
     form = CandidatesForm()
     if form.validate_on_submit():
@@ -249,11 +273,15 @@ def addcandidate():
         db.session.commit()
         flash('Candidate Added Successfully', 'success')
         return redirect(url_for('index'))
-    return render_template('addcandidate.html', form=form)
+    return render_template('addcandidate.html', form=form, bgs=bg_colors)
 
 
 @app.route('/president', methods=['GET', 'POST'])
+@login_required
 def president():
+    if current_user.voted_for_president == True:
+        flash('You have already voted for president ', 'warning')
+        return redirect(url_for('index'))
     candidates = Candidates.query.filter_by(sector='President').all()
     if request.method == 'POST':
         voted_for = request.form.get('vote')
@@ -262,14 +290,19 @@ def president():
             flash('No Vote Was Selected', 'warning')
             return redirect('')
         candidate.votes += 1
+        current_user.voted_for_president = True
         #### ADD CURRENT USER VOTED FOR THIS SECTION TO TRUE #####
         db.session.commit()
-        return redirect('/')
+        return redirect('/#president')
     return render_template('candidates.html', candidates=candidates, Category='Presidential Category')
 
 
 @app.route('/dinning-hall', methods=['GET', 'POST'])
+@login_required
 def dinning_hall():
+    if current_user.voted_for_dinning_hall == True:
+        flash('You have already voted dinning-hall', 'warning')
+        return redirect(url_for('index'))
     candidates = Candidates.query.filter_by(sector='Dinning Hall').all()
     if request.method == 'POST':
         voted_for = request.form.get('vote')
@@ -278,14 +311,19 @@ def dinning_hall():
             flash('No Vote Was Selected', 'warning')
             return redirect('')
         candidate.votes += 1
+        current_user.voted_for_dinning_hall = True
         #### ADD CURRENT USER VOTED FOR THIS SECTION TO TRUE #####
         db.session.commit()
-        return redirect('/')
+        return redirect('/#dinning-hall')
     return render_template('candidates.html', candidates=candidates, Category='Dinnning Hall Category')
 
 
 @app.route('/secretary', methods=['GET', 'POST'])
+@login_required
 def secretary():
+    if current_user.voted_for_secretary == True:
+        flash('You have already voted secretary ', 'warning')
+        return redirect(url_for('index'))
     candidates = Candidates.query.filter_by(sector='Secretary').all()
     if request.method == 'POST':
         voted_for = request.form.get('vote')
@@ -294,14 +332,19 @@ def secretary():
             flash('No Vote Was Selected', 'warning')
             return redirect('')
         candidate.votes += 1
+        current_user.voted_for_secretary = True
         #### ADD CURRENT USER VOTED FOR THIS SECTION TO TRUE #####
         db.session.commit()
-        return redirect('/')
+        return redirect('/#secretary')
     return render_template('candidates.html', candidates=candidates, Category='Secretary Category')
 
 
 @app.route('/pro', methods=['GET', 'POST'])
+@login_required
 def pro():
+    if current_user.voted_for_pro == True:
+        flash('You have already voted pro', 'warning')
+        return redirect(url_for('index'))
     candidates = Candidates.query.filter_by(sector='PRO').all()
     if request.method == 'POST':
         voted_for = request.form.get('vote')
@@ -310,14 +353,19 @@ def pro():
             flash('No Vote Was Selected', 'warning')
             return redirect('')
         candidate.votes += 1
+        current_user.voted_for_pro = True
         #### ADD CURRENT USER VOTED FOR THIS SECTION TO TRUE #####
         db.session.commit()
-        return redirect('/')
+        return redirect('/#pro')
     return render_template('candidates.html', candidates=candidates, Category='Pro Category')
 
 
 @app.route('/environment', methods=['GET', 'POST'])
+@login_required
 def environment():
+    if current_user.voted_for_environment == True:
+        flash('You have already voted environment', 'warning')
+        return redirect(url_for('index'))
     candidates = Candidates.query.filter_by(sector='Environment').all()
     if request.method == 'POST':
         voted_for = request.form.get('vote')
@@ -326,14 +374,19 @@ def environment():
             flash('No Vote Was Selected', 'warning')
             return redirect('')
         candidate.votes += 1
+        current_user.voted_for_environment = True
         #### ADD CURRENT USER VOTED FOR THIS SECTION TO TRUE #####
         db.session.commit()
-        return redirect('/')
+        return redirect('/#environment')
     return render_template('candidates.html', candidates=candidates, Category='Environment Category')
 
 
 @app.route('/library', methods=['GET', 'POST'])
+@login_required
 def library():
+    if current_user.voted_for_library == True:
+        flash('You have already voted library', 'warning')
+        return redirect(url_for('index'))
     candidates = Candidates.query.filter_by(sector='Library').all()
     if request.method == 'POST':
         voted_for = request.form.get('vote')
@@ -342,14 +395,19 @@ def library():
             flash('No Vote Was Selected', 'warning')
             return redirect('')
         candidate.votes += 1
+        current_user.voted_for_library = True
         #### ADD CURRENT USER VOTED FOR THIS SECTION TO TRUE #####
         db.session.commit()
-        return redirect('/')
+        return redirect('/#library')
     return render_template('candidates.html', candidates=candidates, Category='Library Category')
 
 
 @app.route('/entertainment', methods=['GET', 'POST'])
+@login_required
 def entertainment():
+    if current_user.voted_for_entertainment == True:
+        flash('You have already voted entertainment', 'warning')
+        return redirect(url_for('index'))
     candidates = Candidates.query.filter_by(sector='Entertainment').all()
     if request.method == 'POST':
         voted_for = request.form.get('vote')
@@ -358,15 +416,20 @@ def entertainment():
             flash('No Vote Was Selected', 'warning')
             return redirect('')
         candidate.votes += 1
+        current_user.voted_for_entertainment = True
         #### ADD CURRENT USER VOTED FOR THIS SECTION TO TRUE #####
         db.session.commit()
-        return redirect('/')
+        return redirect('/#entertainment')
     return render_template('candidates.html', candidates=candidates, Category='Entertainment Category')
 
 
 
 @app.route('/hall', methods=['GET', 'POST'])
+@login_required
 def hall():
+    if current_user.voted_for_hall == True:
+        flash('You have already voted hall', 'warnig')
+        return redirect(url_for('index'))
     candidates = Candidates.query.filter_by(sector=current_user.hall).all()
     if request.method == 'POST':
         voted_for = request.form.get('vote')
@@ -375,10 +438,11 @@ def hall():
             flash('No Vote Was Selected', 'warning')
             return redirect('')
         candidate.votes += 1
+        current_user.voted_for_hall = True
         db.session.commit()
         #### ADD CURRENT USER VOTED FOR THIS SECTION TO TRUE #####
-        return redirect('/')
-    return render_template('candidates.html', candidates=candidates, Category='Secretary Category')
+        return redirect('/#hall')
+    return render_template('candidates.html', candidates=candidates, Category=f'{current_user.hall} Category')
 
 
 
@@ -422,15 +486,122 @@ def index():
                             total_library_votes=total_library_votes, 
                             total_environment_votes=total_environment_votes, 
                             total_entertainment_votes=total_entertainment_votes, 
-                            colors=bars_colors)
+                            colors=bars_colors, total = total_students, bgs = bg_colors)
+"""
+
+@socketio.on('vote')
+def broadcast_results():
+    total_vote_count = all_votes()
+    secretaries = Candidates.query.filter_by(sector='Secretary').all()
+    total_secretaries_votes = total_votes(secretaries)
+
+    presidents = Candidates.query.filter_by(sector='President').all()
+    total_president_votes = total_votes(presidents)
+
+    dinning_halls = Candidates.query.filter_by(sector='Dinning Hall').all()
+    total_dinning_hall_votes = total_votes(dinning_halls)
+
+    environment = Candidates.query.filter_by(sector='Environment').all()
+    total_environment_votes = total_votes(environment)
+
+    pro_ = Candidates.query.filter_by(sector='PRO').all()
+    total_pro_votes = total_votes(pro_)
+
+    halls = Candidates.query.filter_by(sector='Hall').all()
+    total_halls_votes = total_votes(halls)
+
+    library = Candidates.query.filter_by(sector='Library').all()
+    total_library_votes = total_votes(library)
+
+    entertainment = Candidates.query.filter_by(sector='Entertainment').all()
+    total_entertainment_votes = total_votes(entertainment)
+
+    
+    print('\n \n \n  working \n \n \n')
+
+    emit('vote_results', { "halls" : halls, "secretaries" :secretaries, 
+                            "dinning_halls" : dinning_halls, "presidents":presidents, "entertainment":entertainment,
+                            "library":library, "environment":environment, "pro_":pro_,
+                            "total_secretaries_votes":total_secretaries_votes, 
+                            "total_dinning_hall_votes":total_dinning_hall_votes, 
+                            "total_president_votes":total_president_votes, 
+                            "total_halls_votes":total_halls_votes, 
+                            "total_vote_count":total_vote_count, 
+                            "total_pro_votes":total_pro_votes,
+                            "total_library_votes":total_library_votes, 
+                            "total_environment_votes":total_environment_votes, 
+                            "total_entertainment_votes":total_entertainment_votes, 
+                            "colors":bars_colors, "total" : total_students}, broadcast=True)
+
+
+"""
+
+@socketio.on('message')
+def handle_message(data):
+    print('received message: ' + data)
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+@app.route('/num')
+def num():
+    with open('./creds/numbers.txt', 'r') as f:
+        index_numbers = f.readlines()
+        for i in index_numbers:
+            number = IndexNumbers(index_no=i)
+            db.session.add(number)
+            db.session.commit()
+    with open('./creds/category.txt', 'r') as f:
+        index_numbers = f.readlines()
+        for i in index_numbers:
+            item = Categories(sector=i)
+            db.session.add(item)
+            db.session.commit()
+    with open('./creds/levels.txt', 'r') as f:
+        index_numbers = f.readlines()
+        for i in index_numbers:
+            lvl = Levels(level=i)
+            db.session.add(lvl)
+            db.session.commit()
+    with open('./creds/halls.txt', 'r') as f:
+        index_numbers = f.readlines()
+        for i in index_numbers:
+            hll = Halls(hall=i)
+            db.session.add(hll)
+            db.session.commit()
+    return redirect('/')
+            
 
 
 
 
 
 if __name__=="__main__":
-    app.run(debug=True)
+    socketio.run(app, debug=True)
+    #app.run(debug=True)
     #manager.run()

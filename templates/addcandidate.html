@@ -97,34 +97,15 @@
                   <span class="nav-link-inner--text">Dashboard</span>
                 </a>
               </li>
-              <li class="nav-item">
-                <a
-                  class="nav-link nav-link-icon"
-                  href="{{ url_for('register')}}"
-                >
-                  <i class="ni ni-circle-08"></i>
-                  <span class="nav-link-inner--text">Register</span>
-                </a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link nav-link-icon" href="{{ url_for('login')}}">
-                  <i class="ni ni-key-25"></i>
-                  <span class="nav-link-inner--text">Login</span>
-                </a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link nav-link-icon" href="#">
-                  <i class="ni ni-single-02"></i>
-                  <span class="nav-link-inner--text">Profile</span>
-                </a>
-              </li>
+              
+             
             </ul>
           </div>
         </div>
       </nav>
-
+      {% set bg = bgs|random %}
       <!-- Header -->
-      <div class="header bg-gradient-green py-7 py-lg-8">
+      <div class="header bg-gradient-{{bg}} py-7 py-lg-8">
         <div class="container">
           {% with messages = get_flashed_messages(with_categories=true) %} {% if
           messages %} {% for category, message in messages %}
