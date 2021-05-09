@@ -283,7 +283,7 @@ def president():
         flash('You have already voted for president ', 'warning')
         return redirect(url_for('index'))
     candidates = Candidates.query.filter_by(sector='President').all()
-    if request.method == 'POST':
+    if request.method == 'POST' and request.form.get('vote'):
         voted_for = request.form.get('vote')
         candidate = Candidates.query.get(voted_for)
         if candidate == None:
@@ -291,10 +291,17 @@ def president():
             return redirect('')
         candidate.votes += 1
         current_user.voted_for_president = True
-        #### ADD CURRENT USER VOTED FOR THIS SECTION TO TRUE #####
+        
         db.session.commit()
         return redirect('/#president')
-    return render_template('candidates.html', candidates=candidates, Category='Presidential Category', bgs = bg_colors)
+    elif request.method == 'POST':
+        voted_for = request.form.get('vote')
+        candidate = Candidates.query.get(voted_for)
+        if candidate == None:
+            flash('No Vote Was Selected', 'warning')
+            return redirect('')
+    else:
+        return render_template('candidates.html', candidates=candidates, Category='Presidential Category', bgs = bg_colors)
 
 
 @app.route('/dinning-hall', methods=['GET', 'POST'])
@@ -304,7 +311,7 @@ def dinning_hall():
         flash('You have already voted dinning-hall', 'warning')
         return redirect(url_for('index'))
     candidates = Candidates.query.filter_by(sector='Dinning Hall').all()
-    if request.method == 'POST':
+    if request.method == 'POST' and request.form.get('vote'):
         voted_for = request.form.get('vote')
         candidate = Candidates.query.get(voted_for)
         if candidate == None:
@@ -312,10 +319,17 @@ def dinning_hall():
             return redirect('')
         candidate.votes += 1
         current_user.voted_for_dinning_hall = True
-        #### ADD CURRENT USER VOTED FOR THIS SECTION TO TRUE #####
+        
         db.session.commit()
         return redirect('/#dinning-hall')
-    return render_template('candidates.html', candidates=candidates, Category='Dinnning Hall Category', bgs = bg_colors)
+    elif request.method == 'POST':
+        voted_for = request.form.get('vote')
+        candidate = Candidates.query.get(voted_for)
+        if candidate == None:
+            flash('No Vote Was Selected', 'warning')
+            return redirect('')
+    else:
+        return render_template('candidates.html', candidates=candidates, Category='Dinnning Hall Category', bgs = bg_colors)
 
 
 @app.route('/secretary', methods=['GET', 'POST'])
@@ -325,7 +339,7 @@ def secretary():
         flash('You have already voted secretary ', 'warning')
         return redirect(url_for('index'))
     candidates = Candidates.query.filter_by(sector='Secretary').all()
-    if request.method == 'POST':
+    if request.method == 'POST' and request.form.get('vote'):
         voted_for = request.form.get('vote')
         candidate = Candidates.query.get(voted_for)
         if candidate == None:
@@ -333,10 +347,17 @@ def secretary():
             return redirect('')
         candidate.votes += 1
         current_user.voted_for_secretary = True
-        #### ADD CURRENT USER VOTED FOR THIS SECTION TO TRUE #####
+        
         db.session.commit()
         return redirect('/#secretary')
-    return render_template('candidates.html', candidates=candidates, Category='Secretary Category', bgs = bg_colors)
+    elif request.method == 'POST':
+        voted_for = request.form.get('vote')
+        candidate = Candidates.query.get(voted_for)
+        if candidate == None:
+            flash('No Vote Was Selected', 'warning')
+            return redirect('')
+    else:
+        return render_template('candidates.html', candidates=candidates, Category='Secretary Category', bgs = bg_colors)
 
 
 @app.route('/pro', methods=['GET', 'POST'])
@@ -346,7 +367,7 @@ def pro():
         flash('You have already voted pro', 'warning')
         return redirect(url_for('index'))
     candidates = Candidates.query.filter_by(sector='PRO').all()
-    if request.method == 'POST':
+    if request.method == 'POST' and request.form.get('vote'):
         voted_for = request.form.get('vote')
         candidate = Candidates.query.get(voted_for)
         if candidate == None:
@@ -354,10 +375,17 @@ def pro():
             return redirect('')
         candidate.votes += 1
         current_user.voted_for_pro = True
-        #### ADD CURRENT USER VOTED FOR THIS SECTION TO TRUE #####
+        
         db.session.commit()
         return redirect('/#pro')
-    return render_template('candidates.html', candidates=candidates, Category='Pro Category', bgs = bg_colors)
+    elif request.method == 'POST':
+        voted_for = request.form.get('vote')
+        candidate = Candidates.query.get(voted_for)
+        if candidate == None:
+            flash('No Vote Was Selected', 'warning')
+            return redirect('')
+    else:
+        return render_template('candidates.html', candidates=candidates, Category='Pro Category', bgs = bg_colors)
 
 
 @app.route('/environment', methods=['GET', 'POST'])
@@ -367,7 +395,7 @@ def environment():
         flash('You have already voted environment', 'warning')
         return redirect(url_for('index'))
     candidates = Candidates.query.filter_by(sector='Environment').all()
-    if request.method == 'POST':
+    if request.method == 'POST' and request.form.get('vote'):
         voted_for = request.form.get('vote')
         candidate = Candidates.query.get(voted_for)
         if candidate == None:
@@ -375,10 +403,17 @@ def environment():
             return redirect('')
         candidate.votes += 1
         current_user.voted_for_environment = True
-        #### ADD CURRENT USER VOTED FOR THIS SECTION TO TRUE #####
+        
         db.session.commit()
         return redirect('/#environment')
-    return render_template('candidates.html', candidates=candidates, Category='Environment Category', bgs = bg_colors)
+    elif request.method == 'POST':
+        voted_for = request.form.get('vote')
+        candidate = Candidates.query.get(voted_for)
+        if candidate == None:
+            flash('No Vote Was Selected', 'warning')
+            return redirect('')
+    else:
+        return render_template('candidates.html', candidates=candidates, Category='Environment Category', bgs = bg_colors)
 
 
 @app.route('/library', methods=['GET', 'POST'])
@@ -388,7 +423,7 @@ def library():
         flash('You have already voted library', 'warning')
         return redirect(url_for('index'))
     candidates = Candidates.query.filter_by(sector='Library').all()
-    if request.method == 'POST':
+    if request.method == 'POST' and request.form.get('vote'):
         voted_for = request.form.get('vote')
         candidate = Candidates.query.get(voted_for)
         if candidate == None:
@@ -396,10 +431,17 @@ def library():
             return redirect('')
         candidate.votes += 1
         current_user.voted_for_library = True
-        #### ADD CURRENT USER VOTED FOR THIS SECTION TO TRUE #####
+        
         db.session.commit()
         return redirect('/#library')
-    return render_template('candidates.html', candidates=candidates, Category='Library Category', bgs = bg_colors)
+    elif request.method == 'POST':
+        voted_for = request.form.get('vote')
+        candidate = Candidates.query.get(voted_for)
+        if candidate == None:
+            flash('No Vote Was Selected', 'warning')
+            return redirect('')
+    else:
+        return render_template('candidates.html', candidates=candidates, Category='Library Category', bgs = bg_colors)
 
 
 @app.route('/entertainment', methods=['GET', 'POST'])
@@ -409,7 +451,7 @@ def entertainment():
         flash('You have already voted entertainment', 'warning')
         return redirect(url_for('index'))
     candidates = Candidates.query.filter_by(sector='Entertainment').all()
-    if request.method == 'POST':
+    if request.method == 'POST' and request.form.get('vote'):
         voted_for = request.form.get('vote')
         candidate = Candidates.query.get(voted_for)
         if candidate == None:
@@ -417,10 +459,17 @@ def entertainment():
             return redirect('')
         candidate.votes += 1
         current_user.voted_for_entertainment = True
-        #### ADD CURRENT USER VOTED FOR THIS SECTION TO TRUE #####
+        
         db.session.commit()
         return redirect('/#entertainment')
-    return render_template('candidates.html', candidates=candidates, Category='Entertainment Category', bgs = bg_colors)
+    elif request.method == 'POST':
+        voted_for = request.form.get('vote')
+        candidate = Candidates.query.get(voted_for)
+        if candidate == None:
+            flash('No Vote Was Selected', 'warning')
+            return redirect('')
+    else:
+        return render_template('candidates.html', candidates=candidates, Category='Entertainment Category', bgs = bg_colors)
 
 
 
@@ -431,7 +480,7 @@ def hall():
         flash('You have already voted hall', 'warnig')
         return redirect(url_for('index'))
     candidates = Candidates.query.filter_by(sector=current_user.hall).all()
-    if request.method == 'POST':
+    if request.method == 'POST' and request.form.get('vote'):
         voted_for = request.form.get('vote')
         candidate = Candidates.query.get(voted_for)
         if candidate == None:
@@ -440,9 +489,16 @@ def hall():
         candidate.votes += 1
         current_user.voted_for_hall = True
         db.session.commit()
-        #### ADD CURRENT USER VOTED FOR THIS SECTION TO TRUE #####
+        
         return redirect('/#hall')
-    return render_template('candidates.html', candidates=candidates, Category=f'{current_user.hall} Category', bgs = bg_colors)
+    elif request.method == 'POST':
+        voted_for = request.form.get('vote')
+        candidate = Candidates.query.get(voted_for)
+        if candidate == None:
+            flash('No Vote Was Selected', 'warning')
+            return redirect('')
+    else:
+        return render_template('candidates.html', candidates=candidates, Category=f'{current_user.hall} Category', bgs = bg_colors)
 
 
 
