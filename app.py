@@ -194,7 +194,7 @@ def all_votes():
 
 bars_colors = ['bg-gradient-warning', 'bg-gradient-info', 'bg-gradient-primary', 
                 'bg-gradient-success', 'bg-gradient-danger']
-bg_colors = ['cyan', 'blue', 'primary', 'success', 'red', 'purple']
+bg_colors = ['cyan', 'blue', 'primary', 'success', 'red', 'purple', 'orange']
 
 ####################################################################################################
 def t_students():

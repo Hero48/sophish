@@ -10,8 +10,9 @@
   NJA-SRC-VOTING
     </title>
     <!-- Favicon -->
+    {% set bg = bgs|random %}
     <link
-      href="{{ url_for('static', filename='assets/img/brand/favicon.png')}}"
+      href="{{ url_for('static', filename='assets/img/brand/fav.png')}}"
       rel="icon"
       type="image/png"
     />
@@ -47,9 +48,7 @@
       >
         <div class="container px-4">
           <a class="navbar-brand" href="/">
-            <img
-              src="{{ url_for('static', filename='assets/img/brand/white.png')}}"
-            />
+            <h1 class="font-weight-bold  text-white" >NJA-SRC</h1>
           </a>
           <button
             class="navbar-toggler"
@@ -68,9 +67,7 @@
               <div class="row">
                 <div class="col-6 collapse-brand">
                   <a href="/">
-                    <img
-                      src="{{ url_for('static', filename='assets/img/brand/blue.png')}}"
-                    />
+                    <h1 class="font-weight-bold  text-{{bg}}" >NJA-SRC</h1>
                   </a>
                 </div>
                 <div class="col-6 collapse-close">
@@ -103,7 +100,7 @@
           </div>
         </div>
       </nav>
-      {% set bg = bgs|random %}
+     
       <!-- Header -->
       <div class="header bg-gradient-{{bg}} py-7 py-lg-8">
         <div class="container">
