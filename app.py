@@ -294,7 +294,7 @@ def president():
         #### ADD CURRENT USER VOTED FOR THIS SECTION TO TRUE #####
         db.session.commit()
         return redirect('/#president')
-    return render_template('candidates.html', candidates=candidates, Category='Presidential Category')
+    return render_template('candidates.html', candidates=candidates, Category='Presidential Category', bgs = bg_colors)
 
 
 @app.route('/dinning-hall', methods=['GET', 'POST'])
@@ -315,7 +315,7 @@ def dinning_hall():
         #### ADD CURRENT USER VOTED FOR THIS SECTION TO TRUE #####
         db.session.commit()
         return redirect('/#dinning-hall')
-    return render_template('candidates.html', candidates=candidates, Category='Dinnning Hall Category')
+    return render_template('candidates.html', candidates=candidates, Category='Dinnning Hall Category', bgs = bg_colors)
 
 
 @app.route('/secretary', methods=['GET', 'POST'])
@@ -336,7 +336,7 @@ def secretary():
         #### ADD CURRENT USER VOTED FOR THIS SECTION TO TRUE #####
         db.session.commit()
         return redirect('/#secretary')
-    return render_template('candidates.html', candidates=candidates, Category='Secretary Category')
+    return render_template('candidates.html', candidates=candidates, Category='Secretary Category', bgs = bg_colors)
 
 
 @app.route('/pro', methods=['GET', 'POST'])
@@ -357,7 +357,7 @@ def pro():
         #### ADD CURRENT USER VOTED FOR THIS SECTION TO TRUE #####
         db.session.commit()
         return redirect('/#pro')
-    return render_template('candidates.html', candidates=candidates, Category='Pro Category')
+    return render_template('candidates.html', candidates=candidates, Category='Pro Category', bgs = bg_colors)
 
 
 @app.route('/environment', methods=['GET', 'POST'])
@@ -378,7 +378,7 @@ def environment():
         #### ADD CURRENT USER VOTED FOR THIS SECTION TO TRUE #####
         db.session.commit()
         return redirect('/#environment')
-    return render_template('candidates.html', candidates=candidates, Category='Environment Category')
+    return render_template('candidates.html', candidates=candidates, Category='Environment Category', bgs = bg_colors)
 
 
 @app.route('/library', methods=['GET', 'POST'])
@@ -399,7 +399,7 @@ def library():
         #### ADD CURRENT USER VOTED FOR THIS SECTION TO TRUE #####
         db.session.commit()
         return redirect('/#library')
-    return render_template('candidates.html', candidates=candidates, Category='Library Category')
+    return render_template('candidates.html', candidates=candidates, Category='Library Category', bgs = bg_colors)
 
 
 @app.route('/entertainment', methods=['GET', 'POST'])
@@ -420,7 +420,7 @@ def entertainment():
         #### ADD CURRENT USER VOTED FOR THIS SECTION TO TRUE #####
         db.session.commit()
         return redirect('/#entertainment')
-    return render_template('candidates.html', candidates=candidates, Category='Entertainment Category')
+    return render_template('candidates.html', candidates=candidates, Category='Entertainment Category', bgs = bg_colors)
 
 
 
@@ -442,7 +442,7 @@ def hall():
         db.session.commit()
         #### ADD CURRENT USER VOTED FOR THIS SECTION TO TRUE #####
         return redirect('/#hall')
-    return render_template('candidates.html', candidates=candidates, Category=f'{current_user.hall} Category')
+    return render_template('candidates.html', candidates=candidates, Category=f'{current_user.hall} Category', bgs = bg_colors)
 
 
 
