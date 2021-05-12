@@ -195,7 +195,7 @@ def all_votes():
 
 bars_colors = ['bg-gradient-warning', 'bg-gradient-info', 'bg-gradient-primary', 
                 'bg-gradient-success', 'bg-gradient-danger']
-bg_colors = ['cyan', 'blue', 'primary', 'success', 'red', 'purple', 'orange']
+bg_colors = ['blue', 'primary', 'success', 'red', 'purple', 'orange', 'default']
 
 ####################################################################################################
 def t_students():
@@ -544,69 +544,16 @@ def index():
                             total_environment_votes=total_environment_votes, 
                             total_entertainment_votes=total_entertainment_votes, 
                             colors=bars_colors, total = total_students, bgs = bg_colors)
-"""
-
-@socketio.on('vote')
-def broadcast_results():
-    total_vote_count = all_votes()
-    secretaries = Candidates.query.filter_by(sector='Secretary').all()
-    total_secretaries_votes = total_votes(secretaries)
-
-    presidents = Candidates.query.filter_by(sector='President').all()
-    total_president_votes = total_votes(presidents)
-
-    dinning_halls = Candidates.query.filter_by(sector='Dinning Hall').all()
-    total_dinning_hall_votes = total_votes(dinning_halls)
-
-    environment = Candidates.query.filter_by(sector='Environment').all()
-    total_environment_votes = total_votes(environment)
-
-    pro_ = Candidates.query.filter_by(sector='PRO').all()
-    total_pro_votes = total_votes(pro_)
-
-    halls = Candidates.query.filter_by(sector='Hall').all()
-    total_halls_votes = total_votes(halls)
-
-    library = Candidates.query.filter_by(sector='Library').all()
-    total_library_votes = total_votes(library)
-
-    entertainment = Candidates.query.filter_by(sector='Entertainment').all()
-    total_entertainment_votes = total_votes(entertainment)
-
-    
-    print('\n \n \n  working \n \n \n')
-
-    emit('vote_results', { "halls" : halls, "secretaries" :secretaries, 
-                            "dinning_halls" : dinning_halls, "presidents":presidents, "entertainment":entertainment,
-                            "library":library, "environment":environment, "pro_":pro_,
-                            "total_secretaries_votes":total_secretaries_votes, 
-                            "total_dinning_hall_votes":total_dinning_hall_votes, 
-                            "total_president_votes":total_president_votes, 
-                            "total_halls_votes":total_halls_votes, 
-                            "total_vote_count":total_vote_count, 
-                            "total_pro_votes":total_pro_votes,
-                            "total_library_votes":total_library_votes, 
-                            "total_environment_votes":total_environment_votes, 
-                            "total_entertainment_votes":total_entertainment_votes, 
-                            "colors":bars_colors, "total" : total_students}, broadcast=True)
-
-
-"""
-
-@socketio.on('message')
-def handle_message(data):
-    print('received message: ' + data)
 
 
 
 
 
 
-
-
-
-
-
+@app.route('/profile')
+@login_required
+def profile():
+    return render_template('profile.html')
 
 
 
