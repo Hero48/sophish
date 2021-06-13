@@ -12,7 +12,8 @@ from flask_login import  LoginManager, UserMixin, login_user, current_user, logo
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] ='982c3b7bfbe0cda4d1245c92e83df279'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///sophish.db'
+app.config['SQLALCHEMY_DATABASE_URL'] = 'postgres://jxihntwticsvya:3304c4f346a2c8de57df17e49817327c4e84cacd7f8ad8e9a314e185546d6fba@ec2-54-225-228-142.compute-1.amazonaws.com:5432/d9qk3p939pd847'
+#app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///sophish.db'
 db = SQLAlchemy(app)
 bcrypt = Bcrypt(app)
 login_manager = LoginManager(app)
