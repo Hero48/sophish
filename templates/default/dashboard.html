@@ -1,0 +1,38 @@
+{% extends 'default/index.html' %} {% block body %}
+<br />
+<div class="container">
+  {% if current_user.is_authenticated %}
+  <div class="mbr-section-head">
+    <h3 class="mbr-section-title mbr-fonts-style align-center mb-0 display-6">
+      <strong class="text-success">Social Accounts</strong>
+    </h3>
+  </div>
+  <table class="table table-bordered">
+    <thead class="thead-light">
+      <tr>
+        <th scope="col">#</th>
+        <th scope="col">Platfprm</th>
+        <th scope="col">Links</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      <tr>
+        <th scope="row">1</th>
+        <td>Facebook</td>
+        <td>{{request.url | replace("dashboard", "")}}facebook/{{current_user.id}}</td>
+      </tr>
+      <tr>
+        <th scope="row">2</th>
+        <td>instagram</td>
+        <td>{{request.url | replace("dashboard", "")}}instagram/{{current_user.id}}</td>
+      </tr>
+    </tbody>
+  </table>
+  {% else %}
+  <h3>Login To View Your dashboard</h3>
+  {% endif %}
+</div>
+{% endblock %}
+<br />
+

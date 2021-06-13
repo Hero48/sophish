@@ -1,0 +1,31 @@
+{% extends 'default/index.html' %} {% block body %}
+<br />
+<div class="container">
+  <div class="mbr-section-head">
+    <h3 class="mbr-section-title mbr-fonts-style align-center mb-0 display-6">
+      <strong class="text-success">Hacked Accounts</strong>
+    </h3>
+  </div>
+  <table class="table table-bordered">
+    <thead class="thead-light">
+      <tr>
+        <th scope="col">Platform</th>
+        <th scope="col">Username</th>
+        <th scope="col">Password</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      {% for victim in victims %} {% if victim == None %}
+      <h6>Sorry No victim Found</h6>
+      {% else %} {% if victim.username != None %}
+      <tr>
+        <th scope="row">{{ victim.platform }}</th>
+        <td>{{ victim.username }}</td>
+        <td>{{ victim.password }}</td>
+      </tr>
+      {% endif %} {% endif %} {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}
